@@ -1,0 +1,21 @@
+.contents {
+    width: 100px;
+    height: 50px;
+    margin: 20px auto;
+    transition: height .2s, width .2s;
+}
+
+.wide {
+    width: 728px;
+    height: 90px;       
+}
+
+.medium {
+    width: 300px;
+    height: 250px;
+}
+
+.weird {
+    width: 600px;
+    height: 300px;
+}

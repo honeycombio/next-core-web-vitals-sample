@@ -6,6 +6,7 @@ import _ from 'lodash';
 
 import styles from '../styles/Home.module.css';
 import CodeSampleModal from '../components/CodeSampleModal';
+import FakeAd from '../components/fakeAd';
 
 export default function Start({ countries }) {
   const [results, setResults] = useState(countries);
@@ -35,6 +36,8 @@ export default function Start({ countries }) {
         <div className={styles.heroImage}>
           <img src="large-image.jpg" alt="Large Image" />
         </div>
+
+        <FakeAd/>
 
         <div>
           <h2 className={styles.secondaryHeading}>Population Lookup</h2>
