@@ -33,11 +33,11 @@ export default function Start({ countries }) {
           Powered by <a href="https://nextjs.org">Next.js!</a>
         </h1>
 
+        <FakeAd/>
+
         <div className={styles.heroImage}>
           <img src="large-image.jpg" alt="Large Image" />
         </div>
-
-        <FakeAd/>
 
         <div>
           <h2 className={styles.secondaryHeading}>Population Lookup</h2>
