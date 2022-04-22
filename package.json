@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "axios": "^0.26.1",
     "fuse.js": "^6.4.6",
     "libhoney": "^3.1.0",
     "lodash": "^4.17.21",
