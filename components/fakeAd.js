@@ -1,16 +1,23 @@
 import {createRef, useEffect} from 'react';
 import styles from './fakeAd.module.css'
 
-const adClasses = ['wide', 'medium', 'weird']
+const adClasses = [
+  'wide',
+  'medium',
+  'weird',
+  'okay',
+  'okay',
+  'okay',
+]
 
 const adEl = createRef();  
 
 export default function FakeAd() {
-    useEffect(()=>{
-        setTimeout(()=>{
-            const chosenAd = adClasses[Math.floor(Math.random()*adClasses.length)];
+    useEffect(() => {
+        setTimeout(() => {
+            const chosenAd = adClasses[Math.floor(Math.random() * adClasses.length)];
             adEl.current.classList.add(styles[chosenAd]);
-        }, 100)
+        }, 1000)
     })
 
   return (

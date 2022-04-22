@@ -6,6 +6,12 @@
     transition: height .2s, width .2s, background-color .2s;
 }
 
+.okay {
+    width: 50px;
+    height: 50px;
+    background-color: pink;
+}
+
 .wide {
     width: 728px;
     height: 90px;
