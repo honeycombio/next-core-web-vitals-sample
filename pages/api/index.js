@@ -5,8 +5,8 @@ import Libhoney from 'libhoney';
 // Set the ky and dataset value from there.
 const hny = new Libhoney({
   apiHost: 'https://api-dogfood.honeycomb.io',
-  writeKey: process.env.NEXT_PUBLIC_HNY_API_KEY,
-  dataset: process.env.NEXT_PUBLIC_HNY_DATASET,
+  writeKey: process.env.HNY_API_KEY,
+  dataset: process.env.HNY_DATASET,
 });
 
 // There's no notion of "entries" in nextjs's reporting of CWV.
