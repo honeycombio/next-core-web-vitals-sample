@@ -10,22 +10,26 @@
     width: 50px;
     height: 50px;
     background-color: pink;
+    background-image: url(http://placekitten.com/50/50);
 }
 
 .wide {
     width: 728px;
-    height: 90px;
+    height: 200px;
     background-color: aquamarine;
+    background-image: url(http://placekitten.com/728/200);
 }
 
 .medium {
     width: 300px;
     height: 250px;
     background-color: darkslateblue;
+    background-image: url(http://placekitten.com/300/250);
 }
 
 .weird {
     width: 600px;
     height: 300px;
     background-color: seagreen;
+    background-image: url(http://placekitten.com/600/300);
 }
