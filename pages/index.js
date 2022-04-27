@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 
 import Fuse from 'fuse.js';
 import _ from 'lodash';
@@ -7,6 +8,11 @@ import _ from 'lodash';
 import styles from '../styles/Home.module.css';
 import CodeSampleModal from '../components/CodeSampleModal';
 import FakeAd from '../components/fakeAd';
+
+const WebPerformanceObserver = dynamic(
+  () => import('../components/Observability'),
+  {ssr: false}
+);
 
 export default function Start({ countries }) {
   const [results, setResults] = useState(countries);
@@ -32,10 +38,6 @@ export default function Start({ countries }) {
         <h1 className={styles.title}>
           Powered by <a href="https://nextjs.org">Next.js!</a>
         </h1>
-
-        {/* <div className={styles.heroImage}>
-          <img src="large-image.jpg" alt="Large Image" />
-        </div> */}
 
         <FakeAd/>
 
@@ -98,6 +100,7 @@ export default function Start({ countries }) {
           </span>
         </a>
       </footer>
+      <WebPerformanceObserver/>
     </div>
   );
 }

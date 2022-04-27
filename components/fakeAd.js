@@ -5,9 +5,6 @@ const adClasses = [
   'wide',
   'medium',
   'weird',
-  'okay',
-  'okay',
-  'okay',
 ]
 
 const adEl = createRef();  
@@ -17,7 +14,7 @@ export default function FakeAd() {
         setTimeout(() => {
             const chosenAd = adClasses[Math.floor(Math.random() * adClasses.length)];
             adEl.current.classList.add(styles[chosenAd]);
-        }, 1000)
+        }, 1500)
     })
 
   return (
