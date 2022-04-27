@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {getCLS, getFID, getLCP, getTTFB} from 'web-vitals';
 
+const CLS_THRESHOLD = .02;
 const sessionID =  '_' + Math.random().toString(36).substr(2, 9);
 
 let metadata = {};
@@ -20,41 +21,52 @@ function captureMetadata() {
   }
 }
 
+function extractLargeShifts(entries) {
+  let shifts = {};
+  let i = 0;
+
+  entries.forEach((shift) => {
+    // weed out super minor shifts
+    if (shift.value >= CLS_THRESHOLD) {
+      
+      const resp = shifts[`shift_${i+=1}`] = {
+        value: shift.value,
+      }
+
+      let classLists = [];
+      let parents = [];
+
+      shift.sources.forEach((source) => { 
+        classLists.concat([...source.node.classList]);
+        parents.concat([...source.node.parentElement.classList]);
+        resp.initialHeight = source.previousRect.height;
+        resp.initialWidth = source.previousRect.width;
+        resp.endHeight = source.currentRect.height;
+        resp.endWidth = source.currentRect.width;
+      });
+
+      resp.sourceElementClassLists = classLists;
+      resp.sourceElementParentClassList = parents;
+    }
+  });
+
+  return shifts;
+}
 
 async function handleCLSEvent(evt) {
-  console.log('cls', evt);
   let report = {
     name: evt.name,
     delta: evt.delta,
     value: evt.value,
+    ...extractLargeShifts(evt.entries),
     ...metadata
   };
-  evt.entries.map((shift, i) => {
-    // weed out super minor shifts
-    if (shift.value >= .01) {
-      let classLists = [];
-      let parents = [];
-      shift.sources.forEach((source) => { 
-        classLists.concat([...source.node.classList])
-        parents.concat([...source.node.parentElement.classList])
-      });
-      
-      console.log(classLists, parents);
-      report[`shift_${i}`] = {
-        value: shift.value,
-        previousRect: shift.previousRect,
-        currentRect: shift.currentRect,
-        classLists,
-        parents,
-      }
-    }
-  });
 
+  console.log(report);
   await axios.put(`${process.env.NEXT_PUBLIC_ENDPOINT}`, { metric: report })
 }
 
 async function reportFID(metric) {
-  console.log('fid', metric);
   const report = {
     name: metric.name,
     value: metric.value,
@@ -67,8 +79,6 @@ async function reportFID(metric) {
 }
 
 async function reportLCP(metric) {
-  console.log('lcp', metric);
-  console.log('metadata', metadata);
   const report = {
     name: metric.name,
     value: metric.value,
@@ -84,6 +94,7 @@ async function reportLCP(metric) {
 
   }
 
+  console.log(report);
   await axios.put(`${process.env.NEXT_PUBLIC_ENDPOINT}`, { metric: report })
 }
 
@@ -94,6 +105,8 @@ async function reportTTFB(metric) {
     delta: metric.delta,
     ...metadata
   }
+
+  console.log(report);
   await axios.put(`${process.env.NEXT_PUBLIC_ENDPOINT}`, { metric: report })
 }
 
