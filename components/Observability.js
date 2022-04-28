@@ -25,6 +25,18 @@ function captureMetadata() {
   }
 }
 
+// Grab the url of every script on the page and determine if the script
+// is loaded asynchronously and deferred
+function captureScriptData() {
+  return [...document.scripts].map((script) =>{
+    return {
+      src: script.src,
+      deferred: script.hasAttribute('defer'),
+      async: script.hasAttribute('asynnc')
+    }
+  });
+}
+
 // Loops through all CLS events (there can be dozens) to filter out minor ones
 // and then pulls out helpful debugging info for all shifts to pass to Honeycomb
 function extractLargeShifts(entries) {
@@ -68,8 +80,8 @@ function extractLargeShifts(entries) {
 function handleCLSEvent(evt) {
   let report = {
     name: evt.name,
-    delta: evt.delta,
-    value: evt.value,
+    cls_delta: evt.delta,
+    cls_value: evt.value,
     ...extractLargeShifts(evt.entries),
     ...metadata
   };
@@ -81,8 +93,8 @@ function handleCLSEvent(evt) {
 function reportLCP(metric) {
   const report = {
     name: metric.name,
-    value: metric.value,
-    delta: metric.delta,
+    lcp_value: metric.value,
+    lcp_delta: metric.delta,
     ...metadata
   };
 
@@ -100,12 +112,24 @@ function reportLCP(metric) {
   send(report);
 }
 
-// Handler for Time to First Bite and First Input Delay
-function reportTiming(metric) {
+// Handler for First Input Delay
+function reportScriptTiming(metric) {
   const report = {
     name: metric.name,
-    value: metric.value,
-    delta: metric.delta,
+    fid_value: metric.value,
+    fid_delta: metric.delta,
+    scripts: captureScriptData(),
+    ...metadata
+  }
+  send(report);
+}
+
+// Handler for Time to First Bite
+function reportLoadTiming(metric) {
+  const report = {
+    name: metric.name,
+    ttfb_value: metric.value,
+    ttfb_delta: metric.delta,
     ...metadata
   }
   send(report);
@@ -120,9 +144,9 @@ async function send(metric) {
 export default function ({children}) {
   captureMetadata();
   getCLS(handleCLSEvent);
-  getFID(reportTiming);
+  getFID(reportScriptTiming);
   getLCP(reportLCP);
-  getTTFB(reportTiming);
+  getTTFB(reportLoadTiming);
   return (
     <>
       {children}

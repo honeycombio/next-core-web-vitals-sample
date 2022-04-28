@@ -36,7 +36,7 @@ export default function Start({ countries }) {
 
       <main className={styles.container}>
         <h1 className={styles.title}>
-          Powered by <a href="https://nextjs.org">Next.js!</a>
+          <a href="honeycomb.io/">Honeycomb</a> debugs Core Web Vitals!
         </h1>
 
         <FakeAd/>
