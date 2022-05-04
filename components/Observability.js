@@ -12,6 +12,7 @@ let metadata = {};
 // about the browser and device that might help us dig into patterns
 function captureMetadata() {
   metadata = {
+    pathname: document.location.pathname, 
     // Pixel dimensions of the visible screen
     screenWidth: window.innerWidth,
     screenHeight: window.innerHeight,
@@ -28,13 +29,39 @@ function captureMetadata() {
 // Grab the url of every script on the page and determine if the script
 // is loaded asynchronously and deferred
 function captureScriptData() {
-  return [...document.scripts].map((script) =>{
-    return {
-      src: script.src,
+  const inlineCounter = 0;
+  const data = {}
+  Array.prototype.forEach.call(document.scripts, (script) =>{
+    let filename = `inlineScript${inlineCounter}`
+    if (script.src) {
+      let path = new URL(script.src);
+      filename = path.pathname.substr(path.pathname.lastIndexOf('/')+ 1);
+    } else {
+      inlineCounter += 1;
+    }
+
+    return data[filename] = {
+      name: filename,
       deferred: script.hasAttribute('defer'),
-      async: script.hasAttribute('asynnc')
+      async: script.hasAttribute('asynnc'),
+      url: path ? path.href : 'inline',
+
     }
   });
+
+  return data;
+}
+
+function getNextData() {
+  const before = performance.measure('Next.js-before-hydration');
+  const hydration = performance.measure('Next.js-hydration');
+  const render = performance.measure('Next.js-render');
+
+  return {
+    beforeHydrationMS: before ? before.duration : null,
+    hydrationMS: hydration ? hydration.duration : null,
+    renderMS: render ? render.duration : null
+  }  
 }
 
 // Loops through all CLS events (there can be dozens) to filter out minor ones
@@ -114,11 +141,15 @@ function reportLCP(metric) {
 
 // Handler for First Input Delay
 function reportScriptTiming(metric) {
+  const loadTime = performance.measure('document execution time', 'docStart', 'docEnd');
   const report = {
     name: metric.name,
     fid_value: metric.value,
     fid_delta: metric.delta,
+    documentLoadTimeMS: loadTime.duration,
+    scriptsOnPage: document.scripts.length,
     scripts: captureScriptData(),
+    ...getNextData(),
     ...metadata
   }
   send(report);
@@ -142,6 +173,7 @@ async function send(metric) {
 
 
 export default function ({children}) {
+  performance.mark('docEnd');
   captureMetadata();
   getCLS(handleCLSEvent);
   getFID(reportScriptTiming);
