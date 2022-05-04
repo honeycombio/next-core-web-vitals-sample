@@ -1,18 +1,9 @@
 import Head from 'next/head';
-import dynamic from 'next/dynamic';
-
-import _ from 'lodash';
 
 import styles from '../styles/Home.module.css';
 import FakeAd from '../components/fakeAd';
 import Link from 'next/link';
 import FID from '../components/fid-test';
-
-// WebVitals reporting depends on document, so this needs to be lazy-imported to avoid error
-const WebPerformanceObserver = dynamic(
-  () => import('../components/Observability'),
-  {ssr: false}
-);
 
 export default function Start() {
 
@@ -23,7 +14,7 @@ export default function Start() {
         <meta name="description" content="Core web vitals walk through" />
         <link rel="icon" href="/favicon.ico" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter"
+          href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@800"
           rel="stylesheet"
         />
         
@@ -34,11 +25,14 @@ export default function Start() {
           <a href="https://honeycomb.io/">Honeycomb</a> debugs Core Web Vitals!
         </h1>
 
-        <FakeAd/>
+        
 
         <div>
           <h2 className={styles.secondaryHeading}>Explore more</h2>         
-          <Link href="/lcp"><a>Longest Contentful Paint example</a></Link>
+          <ul>
+          <li><Link href="/lcp"><a>Longest Contentful Paint example</a></Link></li>
+          <li><Link href="/cls"><a>Cumulative Layout Shift example</a></Link></li>
+          </ul>
         </div>
       </main>
 
@@ -54,7 +48,7 @@ export default function Start() {
           </span>
         </a>
       </footer>
-      <WebPerformanceObserver/>
+      
     </div>
   );
 }

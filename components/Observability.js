@@ -116,6 +116,7 @@ function handleCLSEvent(evt) {
 
 // Handler for Largest Contentful Paint
 function reportLCP(metric) {
+  console.log(metric);
   const report = {
     name: metric.name,
     lcp_value: metric.value,
@@ -123,16 +124,13 @@ function reportLCP(metric) {
     ...metadata
   };
 
-  if (metric.entries.length > 0 ) {
-    // It's possible we need to loop through all entries
-    let lcp = metric.entries[0];
-    // Computed pixel size of the largest content
-    report.size = lcp.size;
-    // Time it took (from page start load) to load the content
-    report.duration = lcp.duration;
-    // url if the largest content is media
-    report.url = lcp.url;
-  }
+  const lcp = metric.entries.filter((e) => metric.value === e.renderTime).pop();
+  // outputs element type and classlist as a string
+  report.elementSelector = `${lcp.element.localName}.${[...lcp.element.classList].join('.')}`;  
+  // Computed pixel size of the largest content
+  report.sizeInPixels = lcp.size;
+  // url if the largest content is media
+  report.url = lcp.url;
 
   send(report);
 }

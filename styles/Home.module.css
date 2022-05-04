@@ -107,3 +107,17 @@
     text-align: center;
   }
 }
+
+.imagePrep {
+  width: 50%;
+  margin: 0 auto;
+  height: 100px;
+  background-color: lightgray;
+}
+
+.imageLoaded {
+  background-image: url(/flatiron-building.jpeg);
+  background-size: cover;
+  background-position: 50% 50%;
+  height: 400px;
+}
