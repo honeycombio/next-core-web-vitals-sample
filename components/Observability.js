@@ -41,27 +41,25 @@ function captureScriptData() {
     }
 
     return data[filename] = {
-      name: filename,
+      filename,
       deferred: script.hasAttribute('defer'),
       async: script.hasAttribute('asynnc'),
       url: path ? path.href : 'inline',
-
     }
   });
 
   return data;
 }
 
-function getNextData() {
-  const before = performance.measure('Next.js-before-hydration');
-  const hydration = performance.measure('Next.js-hydration');
-  const render = performance.measure('Next.js-render');
-
-  return {
-    beforeHydrationMS: before ? before.duration : null,
-    hydrationMS: hydration ? hydration.duration : null,
-    renderMS: render ? render.duration : null
-  }  
+// Get all available performance measures. Next creates before-hydration, hydration, by default.
+function getPerformanceMeasures() {
+  // this measure is not created by default but the marks are available
+  performance.measure('Next.js-render');
+  const output = {};
+  [...performance.getEntriesByType('measure')].forEach((measure) => {
+    output[measure.name] = measure.duration;
+  });
+  return output;
 }
 
 // Loops through all CLS events (there can be dozens) to filter out minor ones
@@ -141,26 +139,13 @@ function reportLCP(metric) {
 
 // Handler for First Input Delay
 function reportScriptTiming(metric) {
-  const loadTime = performance.measure('document execution time', 'docStart', 'docEnd');
   const report = {
     name: metric.name,
     fid_value: metric.value,
     fid_delta: metric.delta,
-    documentLoadTimeMS: loadTime.duration,
     scriptsOnPage: document.scripts.length,
     scripts: captureScriptData(),
-    ...getNextData(),
-    ...metadata
-  }
-  send(report);
-}
-
-// Handler for Time to First Bite
-function reportLoadTiming(metric) {
-  const report = {
-    name: metric.name,
-    ttfb_value: metric.value,
-    ttfb_delta: metric.delta,
+    ...getPerformanceMeasures(),
     ...metadata
   }
   send(report);
@@ -171,17 +156,12 @@ async function send(metric) {
   await axios.put(`${process.env.NEXT_PUBLIC_ENDPOINT}`, { metric })
 }
 
-
-export default function ({children}) {
-  performance.mark('docEnd');
+export default function () {
   captureMetadata();
   getCLS(handleCLSEvent);
   getFID(reportScriptTiming);
   getLCP(reportLCP);
-  getTTFB(reportLoadTiming);
   return (
-    <>
-      {children}
-    </>
+    <></>
   );
 };
