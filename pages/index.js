@@ -22,7 +22,7 @@ export default function Start() {
       <FID/>
       <main className={styles.container}>
         <h1 className={styles.title}>
-          <a href="https://honeycomb.io/">Honeycomb</a> debugs Core Web Vitals!
+          <a href="https://honeycomb.io/">Honeycomb</a> makes web performance improvement easy!
         </h1>
 
         
@@ -33,6 +33,7 @@ export default function Start() {
           <li><Link href="/lcp"><a>Longest Contentful Paint example</a></Link></li>
           <li><Link href="/cls"><a>Cumulative Layout Shift example</a></Link></li>
           </ul>
+          <p>Some percentage of the time when you load this page, it will hang for a few seconds before becoming interactive. This is an instance of poor <a href="https://web.dev/fid/">First Input Delay (FID).</a> It's super annoying, and because it seems to happen randomly, incredibly hard to determine why it's happening. Luckily, using this app can send performance data to Honeycomb, so determining the problem is much easier.</p>
         </div>
       </main>
 
