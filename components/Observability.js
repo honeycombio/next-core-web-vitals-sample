@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {getCLS, getFID, getLCP, getTTFB} from 'web-vitals';
+import {getCLS, getFID, getLCP} from 'web-vitals';
 
 // Threshold to weed out insignificant Layout Shift events
 const CLS_THRESHOLD = .02;
@@ -25,6 +25,10 @@ function captureMetadata() {
     sessionID
   }
 }
+
+// -----------------------------------
+// FIRST INPUT DELAY (FID) Observability
+// -----------------------------------
 
 // Grab the url of every script on the page and determine if the script
 // is loaded asynchronously and deferred
@@ -62,42 +66,60 @@ function getPerformanceMeasures() {
   return output;
 }
 
+// Handler for First Input Delay
+function reportScriptTiming(metric) {
+  const report = {
+    name: metric.name,
+    fid_value: metric.value,
+    fid_delta: metric.delta,
+    scriptsOnPage: document.scripts.length,
+    scripts: captureScriptData(),
+    ...getPerformanceMeasures(),
+    ...metadata
+  }
+  send(report);
+}
+
+// ----------------------------------------------
+// CUMULATIVE LAYOUT SHIFT (CLS) Observability
+// ----------------------------------------------
+
 // Loops through all CLS events (there can be dozens) to filter out minor ones
 // and then pulls out helpful debugging info for all shifts to pass to Honeycomb
 function extractLargeShifts(entries) {
   let shifts = {};
-  let i = 0;
 
-  entries.forEach((shift) => {
+  console.log(entries);
+  entries.forEach((shift, i) => {
     // Adjust the CLS Threshold for to include more events
     if (shift.value >= CLS_THRESHOLD) {
-      
-      const resp = shifts[`shift_${i+=1}`] = {
+      let evt = {
         value: shift.value,
+        hadRecentInput: shift.hadRecentInput,
+        sources: []
       }
-
-      let classLists = [];
-      let parents = [];
-
+        
       // 'source' is the CWV identified culprit for a layout shift
-      shift.sources.forEach((source) => { 
-        // This grabs all classes on the source element, to help identify the where on page it is
-        classLists.concat([...source.node.classList]);
-        // This grabs the classes on the source element's parent element
-        parents.concat([...source.node.parentElement.classList]);
-        // Initial height and width of the element that triggered a layout shift
-        resp.initialHeight = source.previousRect.height;
-        resp.initialWidth = source.previousRect.width;
-        // End height and width of the element. This gives us the pixel value of layout shift size.
-        resp.endHeight = source.currentRect.height;
-        resp.endWidth = source.currentRect.width;
+      shift.sources.forEach((source, i) => { 
+        const el = source.node;
+        evt.sources.push({
+          // This grabs all classes on the source element, to help identify the where on page it is
+          sourceEl: `${el.localName}.${[...el.classList].join('.')}`,
+          // This grabs the classes on the source element's parent element
+          parentEl: `${el.parentElement.localName}.${[...el.parentElement.classList].join('.')}`,
+          // This grabs the classes on the source element's previous sibling
+          previousSiblingEl: `${el.previousSibling.localName}.${[...el.previousSibling.classList].join('.')}`,
+          // Initial height and width of the element that triggered a layout shift
+          initialHeight: source.previousRect.height,
+          initialWidth: source.previousRect.width,
+          // End height and width of the element. This gives us the pixel value of layout shift size.
+          endHeight: source.currentRect.height,
+          endWidth: source.currentRect.width,
+        });        
       });
-
-      resp.sourceElementClassLists = classLists;
-      resp.sourceElementParentClassList = parents;
+      shifts[`shift_${i}`] = evt;
     }
   });
-
   return shifts;
 }
 
@@ -114,9 +136,12 @@ function handleCLSEvent(evt) {
   send(report);
 }
 
+// ----------------------------------------------
+// LARGEST CONTENTFUL PAINT (LCP) Observability
+// ----------------------------------------------
+
 // Handler for Largest Contentful Paint
 function reportLCP(metric) {
-  console.log(metric);
   const report = {
     name: metric.name,
     lcp_value: metric.value,
@@ -124,30 +149,23 @@ function reportLCP(metric) {
     ...metadata
   };
 
-  const lcp = metric.entries.filter((e) => metric.value === e.renderTime).pop();
+  // Google claims only the last element in the array is worth reporting
+  const lcp = metric.entries.pop();
+
   // outputs element type and classlist as a string
-  report.elementSelector = `${lcp.element.localName}.${[...lcp.element.classList].join('.')}`;  
+  if (lcp.element) {
+    report.elementSelector = `${lcp.element.localName}.${[...lcp.element.classList].join('.')}`;  
+  }
   // Computed pixel size of the largest content
   report.sizeInPixels = lcp.size;
   // url if the largest content is media
   report.url = lcp.url;
+  // time it took the browser to load the element
+  report.loadTimeMS = lcp.loadTime
 
   send(report);
 }
 
-// Handler for First Input Delay
-function reportScriptTiming(metric) {
-  const report = {
-    name: metric.name,
-    fid_value: metric.value,
-    fid_delta: metric.delta,
-    scriptsOnPage: document.scripts.length,
-    scripts: captureScriptData(),
-    ...getPerformanceMeasures(),
-    ...metadata
-  }
-  send(report);
-}
 
 async function send(metric) {
   console.log(metric);
