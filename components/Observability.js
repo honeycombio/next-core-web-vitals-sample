@@ -92,7 +92,6 @@ function reportScriptTiming(metric) {
 function extractLargeShifts(entries) {
   let shifts = {};
 
-  console.log(entries);
   entries.forEach((shift, i) => {
     // Adjust the CLS Threshold for to include more events
     if (shift.value >= CLS_THRESHOLD) {
@@ -107,11 +106,11 @@ function extractLargeShifts(entries) {
         const el = source.node;
         evt.sources.push({
           // This grabs all classes on the source element, to help identify the where on page it is
-          sourceEl: `${el.localName}.${[...el.classList].join('.')}`,
+          sourceEl: el ? `${el.localName}.${[...el.classList].join('.')}` : null,
           // This grabs the classes on the source element's parent element
-          parentEl: `${el.parentElement.localName}.${[...el.parentElement.classList].join('.')}`,
+          parentEl: el ? `${el.parentElement.localName}.${[...el.parentElement.classList].join('.')}` : null,
           // This grabs the classes on the source element's previous sibling
-          previousSiblingEl: `${el.previousSibling.localName}.${[...el.previousSibling.classList].join('.')}`,
+          previousSiblingEl: el ? `${el.previousSibling.localName}.${[...el.previousSibling.classList].join('.')}`: null,
           // Initial height and width of the element that triggered a layout shift
           initialHeight: source.previousRect.height,
           initialWidth: source.previousRect.width,
