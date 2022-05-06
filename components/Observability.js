@@ -18,11 +18,14 @@ function captureMetadata() {
     screenHeight: window.innerHeight,
     // Browser string
     browser: navigator.userAgent,
-    // Platform info reported by browser
-    platform: navigator.userAgentData.platform || null ,
-    // Browser vendor
-    vendor: navigator.userAgentData.vendor || null,
     sessionID
+  }
+
+  if (navigator.userAgentData) {
+    // Platform info reported by browser
+    metadata.platform =  navigator.userAgentData.platform || null;
+    // Browser vendor
+    metadata.vendor = navigator.userAgentData.vendor || null;
   }
 }
 
