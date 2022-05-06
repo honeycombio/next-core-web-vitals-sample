@@ -15,7 +15,6 @@ function sendEvent(metric) {
   evnt.send();
 }
 
-
 export default function handler(req, res) {
     const { metric } = req.body;
     const allowedList = ['FCP', 'LCP', 'CLS', 'FID', 'TTFB'];

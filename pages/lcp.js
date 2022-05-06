@@ -1,5 +1,4 @@
 import { createRef, useEffect } from 'react';
-import FakeAd from '../components/fakeAd';
 import styles from '../styles/Home.module.css';
 
 export default function LCP() {

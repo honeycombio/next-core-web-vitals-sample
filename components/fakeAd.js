@@ -13,7 +13,9 @@ export default function FakeAd() {
     useEffect(() => {
         setTimeout(() => {
             const chosenAd = adClasses[Math.floor(Math.random() * adClasses.length)];
-            adEl.current.classList.add(styles[chosenAd]);
+            if (adEl.current) {
+              adEl.current.classList.add(styles[chosenAd]);
+            }
         }, 1500)
     })
 

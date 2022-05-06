@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-
 // Silly example that adds a very expensive script to the page on 40% of page loads
 export default function FID() {
   const [addScript] = useState((Math.random() <= .4));
