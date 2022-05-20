@@ -16,7 +16,7 @@ function sendEvent(metric) {
 }
 
 export default function handler(req, res) {
-    const metric = JSON.parse(req.body);
+    const metric = req.body;
     const allowedList = ['FCP', 'LCP', 'CLS', 'FID', 'TTFB', 'root'];
   try {
     if (allowedList.includes(metric.span_event)) {
