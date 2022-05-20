@@ -7,7 +7,7 @@ export default function LCP() {
   useEffect(() => {
     setTimeout(() => {
       lcp.current.classList.add(styles.imageLoaded);
-    }, 300)
+    }, 2000)
   })
 
   return(

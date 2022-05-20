@@ -3,6 +3,7 @@ body {
   padding: 0;
   margin: 0;
   font-family: 'Open Sans', sans-serif;
+  font-weight: normal;
 }
 
 a {
@@ -25,6 +26,7 @@ p,
 ul {
   margin: 0;
   margin-bottom: 1em;
+  font-weight: bold;
 }
 
 ul {

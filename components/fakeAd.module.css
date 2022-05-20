@@ -1,7 +1,7 @@
 .contents {
     width: 100px;
     height: 50px;
-    margin: 20px auto;
+    margin: 100px auto;
     background-color: transparent;
     /* transition: height .2s, width .2s, background-color .2s; */
 }
