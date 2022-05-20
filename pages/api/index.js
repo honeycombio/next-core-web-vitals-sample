@@ -6,8 +6,6 @@ const hny = new Libhoney({
   dataset: process.env.HNY_DATASET,
 });
 
-console.log(process.env.HNY_DATASET);
-
 function sendEvent(metric) {
   const evnt = hny.newEvent();
   evnt.add(metric);
