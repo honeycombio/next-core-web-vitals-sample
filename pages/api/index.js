@@ -16,13 +16,22 @@ function sendEvent(metric) {
 }
 
 export default function handler(req, res) {
-    const { metric } = req.body;
-    const allowedList = ['FCP', 'LCP', 'CLS', 'FID', 'TTFB'];
-
-    if (allowedList.includes(metric.name)) {
+    const metric = JSON.parse(req.body);
+    const allowedList = ['FCP', 'LCP', 'CLS', 'FID', 'TTFB', 'root'];
+  try {
+    if (allowedList.includes(metric.span_event)) {
       sendEvent(metric);
     }
 
     res.status(200);
-    res.end();
+    return res.end();  
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({msg: error.message});
+    }
+  }
+    
+
+    
 }
