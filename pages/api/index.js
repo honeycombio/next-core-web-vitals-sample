@@ -28,7 +28,7 @@ export default function handler(req, res) {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({msg: error.message});
+      body: JSON.stringify({msg: error.message})
     }
   }
     
