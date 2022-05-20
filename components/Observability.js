@@ -10,7 +10,7 @@ function generateId() {
 };
 // this will be populated on init
 let metadata = {};
-let lastSpanID = generateId();
+let lastSpanID = null;
 let trace_id = null;
 
 // This method is called on initial load and lets us capture all metadata
@@ -212,9 +212,9 @@ async function send(metric) {
   if (metric.span_event !== 'root') {
     // first set the parent id of the current span
     metric.parent_id = lastSpanID;
-    // then set the last span id to the current span's id
-    lastSpanID = metric.span_id;
   }
+  // then set the last span id to the current span's id
+  lastSpanID = metric.span_id;
 
   await fetch(`${process.env.NEXT_PUBLIC_ENDPOINT}`, {
     method: 'PUT',
