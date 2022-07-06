@@ -4,6 +4,7 @@ const hny = new Libhoney({
   apiHost: 'https://api-dogfood.honeycomb.io',
   writeKey: process.env.HNY_API_KEY,
   dataset: process.env.HNY_DATASET,
+  userAgentAddition: 'vercel-cmv-demo/1.0',
 });
 
 function sendEvent(metric) {
