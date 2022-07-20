@@ -39,7 +39,7 @@ function getIndex(node) {
 
 
 // Threshold to weed out insignificant Layout Shift events
-const CLS_THRESHOLD = .02;
+const CLS_THRESHOLD = .015;
 // make it easy to generate a unique id
 function generateId() {
   return Math.random().toString(36).substr(2, 20);
