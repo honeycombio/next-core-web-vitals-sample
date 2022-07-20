@@ -1,9 +1,45 @@
 import {getCLS, getFID, getLCP, getTTFB} from 'web-vitals';
 
+// ---- Helper functions from dev.to/aniket_chauhan/generate-a-css-selector-path-of-a-dom-element-4aim ----
+function generateSelector(context) {
+  let index, pathSelector;
+
+  if (context == "null") return;
+  // call getIndex function
+  index = getIndex(context);
+
+  while (context.tagName) {
+    // selector path
+    pathSelector = context.localName + (pathSelector ? ">" + pathSelector : "");
+    context = context.parentNode;
+  }
+  // selector path for nth of type
+  pathSelector = pathSelector + `:nth-of-type(${index})`;
+  return pathSelector;
+}
+
+// get index for nth of type element
+function getIndex(node) {
+  let i = 1;
+  let tagName = node.tagName;
+
+  while (node.previousSibling) {
+    node = node.previousSibling;
+    if (
+      node.nodeType === 1 &&
+      tagName.toLowerCase() == node.tagName.toLowerCase()
+    ) {
+      i++;
+    }
+  }
+  return i;
+}
+
+//------ end helper functions -----
+
+
 // Threshold to weed out insignificant Layout Shift events
 const CLS_THRESHOLD = .02;
-// Simple generic session ID that will help us query all events on a given session
-const sessionID =  '_' + Math.random().toString(36).substr(2, 9);
 // make it easy to generate a unique id
 function generateId() {
   return Math.random().toString(36).substr(2, 20);
@@ -123,38 +159,39 @@ function reportScriptTiming(metric) {
 
 // Loops through all CLS events (there can be dozens) to filter out minor ones
 // and then pulls out helpful debugging info for all shifts to pass to Honeycomb
-function extractLargeShifts(entries) {
-  let shifts = {};
+function sendLargeShifts(evt) {
+  // Adjust the CLS Threshold for to include more events
+  const filtered = evt.entries.filter( shift => shift.value >= CLS_THRESHOLD);
 
-  entries.forEach((shift, i) => {
-    // Adjust the CLS Threshold for to include more events
-    if (shift.value >= CLS_THRESHOLD) {
-      let evt = {
-        cls_shift_value: shift.value,
-        hadRecentInput: shift.hadRecentInput
-      }
-        
-      // 'source' is the CWV identified culprit for a layout shift
-      shift.sources.forEach((source, i) => { 
-        const el = source.node;
-        evt[`shift_${i}`] = {
-          // This grabs all classes on the source element, to help identify the where on page it is
-          sourceEl: el ? `${el.localName}.${[...el.classList].join('.')}` : null,
-          // This grabs the classes on the source element's parent element
-          parentEl: el ? `${el.parentElement.localName}.${[...el.parentElement.classList].join('.')}` : null,
-          // This grabs the classes on the source element's previous sibling
-          previousSiblingEl: el ? `${el.previousSibling.localName}.${[...el.previousSibling.classList].join('.')}`: null,
-          // Initial height and width of the element that triggered a layout shift
-          startHeight: source.previousRect.height,
-          startWidth: source.previousRect.width,
-          // End height and width of the element. This gives us the pixel value of layout shift size.
-          endHeight: source.currentRect.height,
-          endWidth: source.currentRect.width,
-        };        
-      });
+  filtered.forEach((shift) => {
+    const base = {
+      span_event: shift.entryType,
+      cls_shift_value: shift.value,
+      trace_id,
+      ...metadata
     }
+
+    shift.sources.forEach((source) => {
+      const el = source.node;
+      let report = {
+        ...base,
+        // generate unique selector for the el
+        source_el: el ? generateSelector(el) : null,
+        // generate unique selector for the parent note
+        parent_el: el ? generateSelector(el.parentNode) : null,
+        // This grabs the classes on the source element's previous sibling
+        previous_sibling_el: el ? generateSelector(el.previousSibling) : null,
+        // Initial height and width of the element that triggered a layout shift
+        startHeight: source.previousRect.height,
+        startWidth: source.previousRect.width,
+        // End height and width of the element. This gives us the pixel value of layout shift size.
+        endHeight: source.currentRect.height,
+        endWidth: source.currentRect.width,
+      };
+
+      send(report);
+    });
   });
-  return shifts;
 }
 
 // handler for Cumulative Layout Shift
@@ -164,11 +201,12 @@ function handleCLSEvent(evt) {
     cls_delta: evt.delta,
     cls_value: evt.value,
     trace_id,
-    ...extractLargeShifts(evt.entries),
     ...metadata
   };
-
+  
+  // send first so shifts will be children of CLS event
   send(report);
+  sendLargeShifts(evt);
 }
 
 // ----------------------------------------------
@@ -177,7 +215,6 @@ function handleCLSEvent(evt) {
 
 // Handler for Largest Contentful Paint
 function reportLCP(metric) {
-  console.log('web-vitals LCP', metric);
   const report = {
     span_event: metric.name,
     lcp_value: metric.value,
@@ -215,7 +252,7 @@ async function send(metric) {
   }
   // then set the last span id to the current span's id
   lastSpanID = metric.span_id;
-
+  
   await fetch(`${process.env.NEXT_PUBLIC_ENDPOINT}`, {
     method: 'PUT',
     headers: {

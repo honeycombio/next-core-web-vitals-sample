@@ -15,7 +15,7 @@ function sendEvent(metric) {
 
 export default function handler(req, res) {
   const metric = req.body;
-  const allowedList = ['FCP', 'LCP', 'CLS', 'FID', 'TTFB', 'root'];
+  const allowedList = ['FCP', 'LCP', 'CLS', 'layout-shift', 'FID', 'TTFB', 'root'];
   console.log(metric);
   try {
 
