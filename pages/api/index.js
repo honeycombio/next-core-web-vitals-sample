@@ -1,7 +1,7 @@
 import Libhoney from 'libhoney';
 
 const hny = new Libhoney({
-  apiHost: 'https://api-dogfood.honeycomb.io',
+  apiHost: 'https://api.honeycomb.io',
   writeKey: process.env.HNY_API_KEY,
   dataset: process.env.HNY_DATASET,
   userAgentAddition: 'vercel-cwv-demo/1.0',
