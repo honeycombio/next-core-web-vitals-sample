@@ -95,7 +95,7 @@ function createRootSpan() {
 // Grab the url of every script on the page and determine if the script
 // is loaded asynchronously and deferred
 function captureScriptData() {
-  const inlineCounter = 0;
+  let inlineCounter = 0;
   const data = {}
   Array.prototype.forEach.call(document.scripts, (script) =>{
     let filename = `inlineScript${inlineCounter}`
