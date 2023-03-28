@@ -95,12 +95,14 @@ function createRootSpan() {
 // Grab the url of every script on the page and determine if the script
 // is loaded asynchronously and deferred
 function captureScriptData() {
-  const inlineCounter = 0;
+  let inlineCounter = 0;
   const data = {}
   Array.prototype.forEach.call(document.scripts, (script) =>{
     let filename = `inlineScript${inlineCounter}`
+    let path;
+
     if (script.src) {
-      let path = new URL(script.src);
+      path = new URL(script.src);
       filename = path.pathname.substr(path.pathname.lastIndexOf('/')+ 1);
     } else {
       inlineCounter += 1;
