@@ -99,8 +99,10 @@ function captureScriptData() {
   const data = {}
   Array.prototype.forEach.call(document.scripts, (script) =>{
     let filename = `inlineScript${inlineCounter}`
+    let path;
+
     if (script.src) {
-      let path = new URL(script.src);
+      path = new URL(script.src);
       filename = path.pathname.substr(path.pathname.lastIndexOf('/')+ 1);
     } else {
       inlineCounter += 1;
